@@ -1,0 +1,233 @@
+
+<style>
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+  .shift-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;}
+  .shift-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .shift-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+  .shift-title{font-size:15px;font-weight:500;color:var(--color-text-primary);}
+  .shift-sub{font-size:12px;color:var(--color-text-secondary);margin-left:auto;}
+  .slider-row{display:flex;align-items:center;gap:10px;}
+  .slider-label{font-size:12px;color:var(--color-text-secondary);width:52px;flex-shrink:0;}
+  .slider-row input[type=range]{flex:1;}
+  .slider-val{font-size:13px;font-weight:500;color:var(--color-text-primary);width:52px;text-align:right;flex-shrink:0;}
+  .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.5rem;}
+  .metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;}
+  .metric-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;}
+  .metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary);}
+  .metric-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;}
+  .breakdown-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+  .breakdown-table th{text-align:left;font-weight:500;font-size:12px;color:var(--color-text-secondary);padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary);}
+  .breakdown-table td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);}
+  .breakdown-table tr:last-child td{border-bottom:none;font-weight:500;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .bar-wrap{background:var(--color-background-secondary);border-radius:4px;height:14px;overflow:hidden;flex:1;}
+  .bar-fill{height:100%;border-radius:4px;transition:width 0.2s;}
+  .section-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin:1.5rem 0 10px;}
+</style>
+
+<h2 class="sr-only">Care shift cost explorer — adjust hourly rates per shift to see 5-day totals and breakdown.</h2>
+
+<div id="app" style="padding:1rem 0;">
+
+  <div class="metric-grid" id="metrics">
+    <div class="metric"><div class="metric-label">Total weekly hours</div><div class="metric-val" id="m-hrs">120</div><div class="metric-sub">5 days × 24 hrs</div></div>
+    <div class="metric"><div class="metric-label">Weekly cost</div><div class="metric-val" id="m-total">$0</div><div class="metric-sub">all shifts, 5 days</div></div>
+    <div class="metric"><div class="metric-label">Daily cost</div><div class="metric-val" id="m-daily">$0</div><div class="metric-sub">average per day</div></div>
+    <div class="metric"><div class="metric-label">Cost per hour</div><div class="metric-val" id="m-avg">$0</div><div class="metric-sub">blended average</div></div>
+  </div>
+
+  <div class="section-label">Adjust rates per shift</div>
+
+  <div class="shift-card" id="card-0">
+    <div class="shift-header">
+      <div class="shift-dot" style="background:#378ADD;"></div>
+      <div>
+        <div class="shift-title">Early morning</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);">5:00 am – 9:00 am &nbsp;·&nbsp; 4 hrs/day</div>
+      </div>
+      <div class="shift-sub">5-day total: <strong id="sub-0">$0</strong></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Min $</span>
+      <input type="range" id="min-0" min="10" max="60" step="1" value="12">
+      <span class="slider-val" id="minv-0">$12</span>
+    </div>
+    <div class="slider-row" style="margin-top:8px;">
+      <span class="slider-label">Max $</span>
+      <input type="range" id="max-0" min="10" max="60" step="1" value="20">
+      <span class="slider-val" id="maxv-0">$20</span>
+    </div>
+  </div>
+
+  <div class="shift-card" id="card-1">
+    <div class="shift-header">
+      <div class="shift-dot" style="background:#1D9E75;"></div>
+      <div>
+        <div class="shift-title">Day shift</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);">9:00 am – 5:00 pm &nbsp;·&nbsp; 8 hrs/day</div>
+      </div>
+      <div class="shift-sub">5-day total: <strong id="sub-1">$0</strong></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Min $</span>
+      <input type="range" id="min-1" min="10" max="60" step="1" value="15">
+      <span class="slider-val" id="minv-1">$15</span>
+    </div>
+    <div class="slider-row" style="margin-top:8px;">
+      <span class="slider-label">Max $</span>
+      <input type="range" id="max-1" min="10" max="60" step="1" value="25">
+      <span class="slider-val" id="maxv-1">$25</span>
+    </div>
+  </div>
+
+  <div class="shift-card" id="card-2">
+    <div class="shift-header">
+      <div class="shift-dot" style="background:#EF9F27;"></div>
+      <div>
+        <div class="shift-title">Evening shift</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);">5:00 pm – 9:00 pm &nbsp;·&nbsp; 4 hrs/day</div>
+      </div>
+      <div class="shift-sub">5-day total: <strong id="sub-2">$0</strong></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Min $</span>
+      <input type="range" id="min-2" min="10" max="60" step="1" value="14">
+      <span class="slider-val" id="minv-2">$14</span>
+    </div>
+    <div class="slider-row" style="margin-top:8px;">
+      <span class="slider-label">Max $</span>
+      <input type="range" id="max-2" min="10" max="60" step="1" value="22">
+      <span class="slider-val" id="maxv-2">$22</span>
+    </div>
+  </div>
+
+  <div class="shift-card" id="card-3">
+    <div class="shift-header">
+      <div class="shift-dot" style="background:#7F77DD;"></div>
+      <div>
+        <div class="shift-title">Overnight shift</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);">9:00 pm – 5:00 am &nbsp;·&nbsp; 8 hrs/day</div>
+      </div>
+      <div class="shift-sub">5-day total: <strong id="sub-3">$0</strong></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Min $</span>
+      <input type="range" id="min-3" min="10" max="60" step="1" value="18">
+      <span class="slider-val" id="minv-3">$18</span>
+    </div>
+    <div class="slider-row" style="margin-top:8px;">
+      <span class="slider-label">Max $</span>
+      <input type="range" id="max-3" min="10" max="60" step="1" value="28">
+      <span class="slider-val" id="maxv-3">$28</span>
+    </div>
+  </div>
+
+  <div class="section-label">5-day cost breakdown</div>
+
+  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;">
+    <table class="breakdown-table">
+      <thead>
+        <tr>
+          <th style="width:140px;">Shift</th>
+          <th style="width:60px;">Hrs/day</th>
+          <th style="width:60px;">Days</th>
+          <th style="width:70px;">Total hrs</th>
+          <th>Rate range</th>
+          <th style="width:110px;">Cost range</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:1.5rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;">
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:12px;">Cost proportion by shift (at midpoint rate)</div>
+    <div id="bar-chart" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+</div>
+
+<script>
+const SHIFTS = [
+  {name:'Early morning', hours:4, color:'#378ADD'},
+  {name:'Day shift',     hours:8, color:'#1D9E75'},
+  {name:'Evening shift', hours:4, color:'#EF9F27'},
+  {name:'Overnight',     hours:8, color:'#7F77DD'},
+];
+const DAYS = 5;
+
+function getVals(i) {
+  let mn = parseInt(document.getElementById('min-'+i).value);
+  let mx = parseInt(document.getElementById('max-'+i).value);
+  if(mx < mn) mx = mn;
+  return {min:mn, max:mx, mid:((mn+mx)/2)};
+}
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtRange(mn,mx){ return mn===mx ? fmt(mn) : fmt(mn)+' – '+fmt(mx); }
+
+function update() {
+  let totalMin=0, totalMax=0, totalMid=0;
+  const rows = SHIFTS.map((s,i)=>{
+    const v = getVals(i);
+    const totalHrs = s.hours * DAYS;
+    const cMin = v.min * totalHrs;
+    const cMax = v.max * totalHrs;
+    const cMid = v.mid * totalHrs;
+    totalMin += cMin; totalMax += cMax; totalMid += cMid;
+    document.getElementById('sub-'+i).textContent = fmtRange(cMin, cMax);
+    document.getElementById('minv-'+i).textContent = '$'+v.min;
+    document.getElementById('maxv-'+i).textContent = '$'+v.max;
+    return {s, totalHrs, cMin, cMax, cMid, v};
+  });
+
+  document.getElementById('m-hrs').textContent = (24*DAYS);
+  document.getElementById('m-total').textContent = fmtRange(totalMin, totalMax);
+  document.getElementById('m-daily').textContent = fmtRange(Math.round(totalMin/DAYS), Math.round(totalMax/DAYS));
+  const blendedMin = (totalMin/(24*DAYS)).toFixed(2);
+  const blendedMax = (totalMax/(24*DAYS)).toFixed(2);
+  document.getElementById('m-avg').textContent = '$'+blendedMin+(blendedMin!==blendedMax?' – $'+blendedMax:'');
+
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = '';
+  rows.forEach(({s,totalHrs,cMin,cMax,v},i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="swatch" style="background:${s.color};"></span>${s.name}</td>
+      <td>${s.hours}</td>
+      <td>${DAYS}</td>
+      <td>${totalHrs}</td>
+      <td>$${v.min}/hr${v.min!==v.max?' – $'+v.max+'/hr':''}</td>
+      <td>${fmtRange(cMin,cMax)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const totTr = document.createElement('tr');
+  totTr.style.borderTop = '0.5px solid var(--color-border-secondary)';
+  totTr.innerHTML = `<td colspan="3">Total</td><td>${24*DAYS}</td><td></td><td>${fmtRange(totalMin,totalMax)}</td>`;
+  tbody.appendChild(totTr);
+
+  const bc = document.getElementById('bar-chart');
+  bc.innerHTML = '';
+  const maxMid = Math.max(...rows.map(r=>r.cMid));
+  rows.forEach(({s,cMid,cMin,cMax},i)=>{
+    const pct = maxMid > 0 ? Math.round((cMid/totalMid)*100) : 0;
+    const barW = maxMid > 0 ? Math.round((cMid/maxMid)*100) : 0;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    div.innerHTML = `
+      <span style="width:110px;font-size:12px;color:var(--color-text-secondary);flex-shrink:0;">${s.name}</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${barW}%;background:${s.color};"></div></div>
+      <span style="width:34px;font-size:12px;color:var(--color-text-secondary);text-align:right;flex-shrink:0;">${pct}%</span>
+      <span style="width:90px;font-size:12px;color:var(--color-text-primary);text-align:right;flex-shrink:0;">${fmtRange(cMin,cMax)}</span>`;
+    bc.appendChild(div);
+  });
+}
+
+[0,1,2,3].forEach(i=>{
+  ['min','max'].forEach(type=>{
+    document.getElementById(type+'-'+i).addEventListener('input', update);
+  });
+});
+
+update();
+</script>
