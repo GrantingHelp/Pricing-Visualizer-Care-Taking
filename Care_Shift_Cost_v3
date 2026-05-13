@@ -1,0 +1,280 @@
+
+<style>
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+  body{background:#FAF9F7;}
+  .page{background:#FAF9F7;padding:1.25rem 0;}
+  .hero{background:#FAF9F7;margin-bottom:1.5rem;}
+  .hero-title{font-size:22px;font-weight:500;color:#2C2C2A;margin:0 0 4px;}
+  .hero-sub{font-size:14px;color:#5F5E5A;margin:0;}
+  .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.5rem;}
+  .metric{border-radius:12px;padding:14px 16px;border:1.5px solid transparent;}
+  .metric-label{font-size:12px;font-weight:500;margin-bottom:5px;opacity:.85;}
+  .metric-val{font-size:19px;font-weight:500;line-height:1.2;}
+  .metric-sub{font-size:11px;margin-top:3px;opacity:.65;}
+  .controls-row{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .toggle-group{display:flex;border:1.5px solid #D3D1C7;border-radius:10px;overflow:hidden;background:#F1EFE8;}
+  .toggle-btn{padding:7px 16px;font-size:13px;font-weight:500;background:transparent;border:none;cursor:pointer;color:#5F5E5A;transition:background .15s,color .15s;}
+  .toggle-btn.active{background:#fff;color:#2C2C2A;border-radius:8px;margin:2px;}
+  .divider{width:1px;height:22px;background:#D3D1C7;}
+  .weekend-row{display:flex;align-items:center;gap:7px;font-size:13px;color:#5F5E5A;cursor:pointer;user-select:none;}
+  .wk-check{width:18px;height:18px;border:1.5px solid #B4B2A9;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;transition:background .15s,border-color .15s;}
+  .wk-check.on{background:#E6F1FB;border-color:#378ADD;}
+  .wk-check.on::after{content:'';display:block;width:9px;height:6px;border-left:2px solid #185FA5;border-bottom:2px solid #185FA5;transform:rotate(-45deg) translateY(-1px);}
+  .days-pill{font-size:12px;color:#888780;background:#F1EFE8;padding:4px 12px;border-radius:20px;border:1px solid #D3D1C7;}
+  .section-label{font-size:13px;font-weight:500;color:#444441;margin:1.5rem 0 10px;display:flex;align-items:center;gap:8px;}
+  .section-label::after{content:'';flex:1;height:1px;background:#E8E6DF;}
+  .shift-card{border-radius:14px;padding:1rem 1.25rem;margin-bottom:10px;border:1.5px solid transparent;position:relative;overflow:hidden;}
+  .shift-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:14px 0 0 14px;}
+  .shift-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+  .shift-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+  .shift-info{flex:1;}
+  .shift-title{font-size:14px;font-weight:500;color:#2C2C2A;margin:0 0 2px;}
+  .shift-meta{font-size:12px;color:#888780;}
+  .shift-total{text-align:right;flex-shrink:0;}
+  .shift-total-label{font-size:11px;color:#888780;margin-bottom:2px;}
+  .shift-total-val{font-size:14px;font-weight:500;color:#2C2C2A;}
+  .slider-row{display:flex;align-items:center;gap:10px;margin-top:5px;}
+  .slider-label{font-size:12px;color:#888780;width:44px;flex-shrink:0;}
+  .slider-row input[type=range]{flex:1;max-width:380px;accent-color:#378ADD;}
+  .slider-val{font-size:13px;font-weight:500;color:#2C2C2A;width:40px;text-align:right;flex-shrink:0;}
+  .card-wrap{background:#fff;border:1px solid #E8E6DF;border-radius:14px;padding:1rem 1.25rem;margin-bottom:10px;}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+  .tbl th{text-align:left;font-weight:500;font-size:12px;color:#888780;padding:6px 10px;border-bottom:1px solid #E8E6DF;}
+  .tbl td{padding:9px 10px;border-bottom:1px solid #F1EFE8;color:#2C2C2A;}
+  .tbl tr:last-child td{border-bottom:none;font-weight:500;border-top:1px solid #D3D1C7;background:#FAF9F7;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:middle;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .bar-wrap{background:#F1EFE8;border-radius:6px;height:16px;overflow:hidden;flex:1;}
+  .bar-fill{height:100%;border-radius:6px;transition:width .25s;}
+  .bar-pct{width:30px;font-size:12px;color:#888780;text-align:right;flex-shrink:0;}
+  .bar-cost{width:115px;font-size:12px;color:#2C2C2A;text-align:right;flex-shrink:0;}
+  .bar-name{width:110px;font-size:12px;color:#5F5E5A;flex-shrink:0;}
+</style>
+
+<h2 class="sr-only">Care shift cost explorer — warmer redesign with period toggle, weekend option, and per-shift rate sliders.</h2>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-title">Care cost explorer</div>
+    <div class="hero-sub">Adjust hourly rates per shift to see what care costs over your chosen period.</div>
+  </div>
+
+  <div class="metric-grid" id="metrics">
+    <div class="metric" style="background:#E6F1FB;border-color:#B5D4F4;">
+      <div class="metric-label" style="color:#185FA5;">Total care hours</div>
+      <div class="metric-val" style="color:#0C447C;" id="m-hrs">—</div>
+      <div class="metric-sub" style="color:#185FA5;" id="m-hrs-sub">—</div>
+    </div>
+    <div class="metric" style="background:#EAF3DE;border-color:#C0DD97;">
+      <div class="metric-label" style="color:#3B6D11;" id="m-cost-label">Weekly cost</div>
+      <div class="metric-val" style="color:#27500A;" id="m-total">—</div>
+      <div class="metric-sub" style="color:#3B6D11;">all shifts combined</div>
+    </div>
+    <div class="metric" style="background:#FAEEDA;border-color:#FAC775;">
+      <div class="metric-label" style="color:#854F0B;">Daily cost</div>
+      <div class="metric-val" style="color:#633806;" id="m-daily">—</div>
+      <div class="metric-sub" style="color:#854F0B;">average per day</div>
+    </div>
+    <div class="metric" style="background:#EEEDFE;border-color:#CECBF6;">
+      <div class="metric-label" style="color:#534AB7;">Blended rate</div>
+      <div class="metric-val" style="color:#3C3489;" id="m-avg">—</div>
+      <div class="metric-sub" style="color:#534AB7;">cost per hour</div>
+    </div>
+  </div>
+
+  <div class="controls-row">
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="btn-week" onclick="setPeriod('week')">Weekly</button>
+      <button class="toggle-btn" id="btn-month" onclick="setPeriod('month')">Monthly</button>
+    </div>
+    <div class="divider"></div>
+    <div class="weekend-row" onclick="toggleWeekends()">
+      <div class="wk-check" id="wk-check"></div>
+      <span id="wk-label">Include weekends</span>
+    </div>
+    <div class="days-pill" id="days-badge">5 days</div>
+  </div>
+
+  <div class="section-label">Rates per shift</div>
+  <div id="shift-cards"></div>
+
+  <div class="section-label">Breakdown</div>
+
+  <div class="card-wrap">
+    <table class="tbl" id="tbl"></table>
+  </div>
+
+  <div class="card-wrap">
+    <div style="font-size:13px;font-weight:500;color:#444441;margin-bottom:12px;">Share of total cost (midpoint rates)</div>
+    <div id="bar-chart"></div>
+  </div>
+
+</div>
+
+<script>
+const SHIFTS = [
+  {name:'Early morning', time:'5:00 am – 9:00 am', hours:4, color:'#378ADD', bg:'#E6F1FB', accent:'#185FA5', icon:'🌤'},
+  {name:'Day shift',     time:'9:00 am – 5:00 pm', hours:8, color:'#1D9E75', bg:'#EAF3DE', accent:'#3B6D11', icon:'☀️'},
+  {name:'Evening shift', time:'5:00 pm – 9:00 pm', hours:4, color:'#EF9F27', bg:'#FAEEDA', accent:'#854F0B', icon:'🌇'},
+  {name:'Overnight',     time:'9:00 pm – 5:00 am', hours:8, color:'#7F77DD', bg:'#EEEDFE', accent:'#534AB7', icon:'🌙'},
+];
+const DEFAULTS = [{min:12,max:20},{min:15,max:25},{min:14,max:22},{min:18,max:28}];
+
+let period = 'week';
+let includeWeekends = false;
+
+function getDays(){
+  if(period==='week') return includeWeekends ? 7 : 5;
+  return includeWeekends ? 30 : 22;
+}
+
+function setPeriod(p){
+  period = p;
+  document.getElementById('btn-week').classList.toggle('active', p==='week');
+  document.getElementById('btn-month').classList.toggle('active', p==='month');
+  update();
+}
+
+function toggleWeekends(){
+  includeWeekends = !includeWeekends;
+  document.getElementById('wk-check').classList.toggle('on', includeWeekends);
+  document.getElementById('wk-label').textContent = includeWeekends ? 'Weekends included' : 'Include weekends';
+  update();
+}
+
+function getVals(i){
+  const mn = parseInt(document.getElementById('min-'+i).value);
+  let mx = parseInt(document.getElementById('max-'+i).value);
+  if(mx < mn){ mx = mn; document.getElementById('max-'+i).value = mn; }
+  return {min:mn, max:mx, mid:(mn+mx)/2};
+}
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtRange(mn,mx){ return mn===mx ? fmt(mn) : fmt(mn)+' – '+fmt(mx); }
+
+function buildCards(){
+  const container = document.getElementById('shift-cards');
+  container.innerHTML = '';
+  SHIFTS.forEach((s,i) => {
+    const d = DEFAULTS[i];
+    const div = document.createElement('div');
+    div.className = 'shift-card';
+    div.style.cssText = `background:${s.bg};border-color:${s.color}30;`;
+    div.innerHTML = `
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${s.color};border-radius:14px 0 0 14px;"></div>
+      <div class="shift-header" style="padding-left:8px;">
+        <div class="shift-icon" style="background:${s.color}20;">${s.icon}</div>
+        <div class="shift-info">
+          <div class="shift-title">${s.name}</div>
+          <div class="shift-meta">${s.time} &nbsp;·&nbsp; ${s.hours} hrs/day</div>
+        </div>
+        <div class="shift-total">
+          <div class="shift-total-label" id="sub-label-${i}">Period total</div>
+          <div class="shift-total-val" id="sub-${i}">—</div>
+        </div>
+      </div>
+      <div style="padding-left:8px;">
+        <div class="slider-row">
+          <span class="slider-label">Min</span>
+          <input type="range" id="min-${i}" min="10" max="60" step="1" value="${d.min}" style="accent-color:${s.color};">
+          <span class="slider-val" id="minv-${i}">$${d.min}</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Max</span>
+          <input type="range" id="max-${i}" min="10" max="60" step="1" value="${d.max}" style="accent-color:${s.color};">
+          <span class="slider-val" id="maxv-${i}">$${d.max}</span>
+        </div>
+      </div>`;
+    container.appendChild(div);
+
+    div.querySelector('#min-'+i).addEventListener('input', () => {
+      const mn = parseInt(document.getElementById('min-'+i).value);
+      const maxEl = document.getElementById('max-'+i);
+      if(parseInt(maxEl.value) < mn) maxEl.value = mn;
+      update();
+    });
+    div.querySelector('#max-'+i).addEventListener('input', () => {
+      const mx = parseInt(document.getElementById('max-'+i).value);
+      const minEl = document.getElementById('min-'+i);
+      if(parseInt(minEl.value) > mx) minEl.value = mx;
+      update();
+    });
+  });
+}
+
+function update(){
+  const days = getDays();
+  const isMonth = period === 'month';
+  const totalHrsPerDay = SHIFTS.reduce((a,s)=>a+s.hours,0);
+  const totalHrs = totalHrsPerDay * days;
+
+  document.getElementById('days-badge').textContent = days+' days';
+  document.getElementById('m-cost-label').textContent = isMonth ? 'Monthly cost' : 'Weekly cost';
+
+  let totalMin=0, totalMax=0, totalMid=0;
+  const rows = SHIFTS.map((s,i) => {
+    const v = getVals(i);
+    const shiftHrs = s.hours * days;
+    const cMin = v.min * shiftHrs;
+    const cMax = v.max * shiftHrs;
+    const cMid = v.mid * shiftHrs;
+    totalMin += cMin; totalMax += cMax; totalMid += cMid;
+    document.getElementById('minv-'+i).textContent = '$'+v.min;
+    document.getElementById('maxv-'+i).textContent = '$'+v.max;
+    document.getElementById('sub-label-'+i).textContent = isMonth ? 'Monthly total' : 'Weekly total';
+    document.getElementById('sub-'+i).textContent = fmtRange(cMin, cMax);
+    return {s, shiftHrs, cMin, cMax, cMid, v};
+  });
+
+  document.getElementById('m-hrs').textContent = totalHrs.toLocaleString();
+  document.getElementById('m-hrs-sub').textContent = days+' days × '+totalHrsPerDay+' hrs/day';
+  document.getElementById('m-total').textContent = fmtRange(totalMin, totalMax);
+  document.getElementById('m-daily').textContent = fmtRange(Math.round(totalMin/days), Math.round(totalMax/days));
+  const bMin = (totalMin/totalHrs).toFixed(2);
+  const bMax = (totalMax/totalHrs).toFixed(2);
+  document.getElementById('m-avg').textContent = bMin===bMax ? '$'+bMin : '$'+bMin+' – $'+bMax;
+
+  const tbl = document.getElementById('tbl');
+  tbl.innerHTML = `<thead><tr>
+    <th style="width:130px;">Shift</th>
+    <th style="width:60px;">Hrs/day</th>
+    <th style="width:50px;">Days</th>
+    <th style="width:75px;">Total hrs</th>
+    <th>Rate range</th>
+    <th style="width:130px;">Cost range</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+  rows.forEach(({s,shiftHrs,cMin,cMax,v}) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="swatch" style="background:${s.color};"></span>${s.name}</td>
+      <td>${s.hours}</td><td>${days}</td><td>${shiftHrs}</td>
+      <td>$${v.min}/hr${v.min!==v.max?' – $'+v.max+'/hr':''}</td>
+      <td>${fmtRange(cMin,cMax)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const totTr = document.createElement('tr');
+  totTr.innerHTML = `<td colspan="3">Total</td><td>${totalHrs}</td><td></td><td>${fmtRange(totalMin,totalMax)}</td>`;
+  tbody.appendChild(totTr);
+  tbl.appendChild(tbody);
+
+  const bc = document.getElementById('bar-chart');
+  bc.innerHTML = '';
+  rows.forEach(({s,cMid,cMin,cMax}) => {
+    const pct = totalMid > 0 ? Math.round((cMid/totalMid)*100) : 0;
+    const barW = totalMid > 0 ? Math.round((cMid/totalMid)*100) : 0;
+    const div = document.createElement('div');
+    div.className = 'bar-row';
+    div.innerHTML = `
+      <span class="bar-name">${s.icon} ${s.name}</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${barW}%;background:${s.color};"></div></div>
+      <span class="bar-pct">${pct}%</span>
+      <span class="bar-cost">${fmtRange(cMin,cMax)}</span>`;
+    bc.appendChild(div);
+  });
+}
+
+buildCards();
+update();
+</script>
